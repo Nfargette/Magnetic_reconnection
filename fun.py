@@ -178,19 +178,19 @@ def resample(data, tt_temp, time_step = 4, erase_nan=True):
         np.linspace(t0, t0 + (n_pts-1)*(time_step/3600/24), n_pts), 
         format='jd'
     )                                                                   # new time vector
-        
+          
     i_nans = np.max(np.isnan(data[:-2]), axis=0)                        # Flag intervals with NaN values
-    i_nans_new = DSplin(tt_temp.jd, tt_new.jd, i_nans)                  # Transpose these intervals to 
+    i_nans_new = DSplin(tt_temp.jd, tt_new.jd, i_nans.astype(float), 0, 0, 1)                  # Transpose these intervals to 
                                                                         # the new time frame
     i_nans_new[i_nans_new>0] = 1
     i_nans_new = np.array(i_nans_new, dtype=bool) 
     
     data_new = np.zeros((len(data), n_pts))                             # Initiate new data array
-    for i in tqdm(range(len(data))):   
+    for i in (range(len(data))):   
         # Resample each parameter
         is_not_nan = np.argwhere(~np.isnan(data[i]))[:, 0]
         data_new[i] = DSplin(
-            tt_temp[is_not_nan].jd, tt_new.jd, data[is_not_nan]
+            tt_temp[is_not_nan].jd, tt_new.jd, data[i, is_not_nan]
         )
         if erase_nan:
             data_new[i, i_nans_new] = 'NaN'                             # Put NaN values where other parameters 
