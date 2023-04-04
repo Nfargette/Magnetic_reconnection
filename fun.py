@@ -87,6 +87,7 @@ class mva(object):
 		plt.show()
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 def DSplin(xin, xout, f, lis=0.0, n=0, order=1) :
     
     """
@@ -114,19 +115,37 @@ def DSplin(xin, xout, f, lis=0.0, n=0, order=1) :
         Interpolated vector
 
     """
+    len_shape   = len(f.shape)   
+    i_data      = ((xout < xin[-1]) & (xout > xin[0]))
     
-    if xin[-1]<xin[0] :
-        xin = xin[::-1]
-        f = f[::-1]
-    
-    tck = interpolate.splrep(xin, f, s=lis, k=order)
-    
-    if (n>-0.5) :
-      return interpolate.splev(xout, tck, der=n)
-  
-    else :
-      tckint = interpolate.splantider(tck, abs(n))
-      return interpolate.splev(xout, tckint, der=0)
+    if len_shape > 1:    
+        f_out = np.zeros((len(f), len(xout)))
+        
+        for i in range(len(f)):
+            tck = interpolate.splrep(xin, f[i], s = lis, k = order)
+            
+            if (n > -0.5) :
+              f_out[i] =  interpolate.splev(xout, tck, der = n)
+              
+            else :
+              tckint    = interpolate.splantider(tck, abs(n))
+              f_out[i]  = interpolate.splev(xout, tckint, der = 0)
+              
+        f_out[:, ~i_data] = 'nan'
+        
+    else:
+        tck = interpolate.splrep(xin, f, s = lis, k = order)
+        
+        if (n >- 0.5) :
+          f_out     = interpolate.splev(xout, tck, der = n)
+          
+        else :
+          tckint    = interpolate.splantider(tck, abs(n))
+          f_out     = interpolate.splev(xout, tckint, der = 0)
+          
+        f_out[~i_data] = 'nan'
+        
+    return f_out
   
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 def resample(data, tt_temp, time_step = 4, erase_nan=True):
