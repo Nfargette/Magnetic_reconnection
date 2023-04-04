@@ -467,10 +467,15 @@ def not_detected(tt_jet, tt, i_0, i_f):
 
     """
     for k in range(len(tt_jet)):
-        if (Time(tt[i_0]).jd < tt_jet[k][0]) & (Time(tt[i_f]).jd > tt_jet[k][1]):
+        #if the interval overlaps totally with a previous interval
+        if (Time(tt[i_0]).jd <= tt_jet[k][0]) & (Time(tt[i_f]).jd >= tt_jet[k][1]):
+            return False
+        elif (Time(tt[i_0]).jd >= tt_jet[k][0]) & (Time(tt[i_0]).jd < tt_jet[k][1]):
+            return False
+        elif (Time(tt[i_f]).jd > tt_jet[k][0]) & (Time(tt[i_f]).jd <= tt_jet[k][1]):
             return False
     return True
-
+    
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 def Bl_reversal(B_l):
     """
